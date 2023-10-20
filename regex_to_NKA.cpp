@@ -245,16 +245,11 @@ class DKA {
 
   void Print() {
     for (size_t i = 0; i < states.size(); ++i) {
-      Node* now = states[i];
+      auto now = states[i];
       std::cout << "\n-----------------------------" << i << "\n";
       for (size_t j = 0; j < dict_size; ++j) {
         if (now->trans[j] != nullptr) {
           std::cout << "(" << j << "->" << now->trans[j]->num << ") ";
-        }
-      }
-      for (size_t j = 0; j < now->epsilon.size(); ++j) {
-        if (now->epsilon[j] != nullptr) {
-          std::cout << "(E" << "->" << now->epsilon[j]->num << ") ";
         }
       }
     }
@@ -279,8 +274,9 @@ class DKA {
   }
 
   void CreateNode(std::set<size_t>& set) {
-    Node* new_node = new DkaNode(dict_size);
+    auto new_node = new DkaNode(dict_size);
     nka_map[set] = states.size();
+    new_node->num = states.size();
     states.push_back(new_node);
   }
 
@@ -319,7 +315,9 @@ class DKA {
         for (auto ind : closure) {  // находим следующее подмножество по букве
           auto curr_node = nfa.GetNode(ind);
           auto to_node = curr_node->trans[letter];
-          next_set.insert(to_node->num);
+          if (to_node != nullptr) {
+            next_set.insert(to_node->num);
+          }
         }
         if (SetNotProcessed(next_set)) {  // создаем новую вершину в дка
           CreateNode(next_set);
