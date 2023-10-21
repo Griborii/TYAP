@@ -12,7 +12,7 @@ struct Node {
   size_t size;
   std::vector<Node*> trans;
   std::vector<Node*> epsilon;
-  Node(size_t size) :  num(-1), size(size), trans(size, nullptr), epsilon(1, this) {}
+  Node(size_t size) :  num(-1), size(size), trans(size, nullptr), epsilon(0) {}
   Node* Trans(size_t let) { return trans[let]; }
   void Add(size_t let, Node* nd) { trans[let] = nd; }
   void Add(Node* nd) { epsilon.push_back(nd); }
@@ -257,6 +257,7 @@ class DKA {
 
  private:
   void EpsClosure(std::set<size_t>& closure, Node* node) {
+    closure.insert(node->num);
     for (auto next : node->Eplison()) {
       if (closure.find(next->num) == closure.end()) {
         closure.insert(next->num);
@@ -278,6 +279,14 @@ class DKA {
     nka_map[set] = states.size();
     new_node->num = states.size();
     states.push_back(new_node);
+    std::cout << "----------" << new_node->num << "-------------\n";
+    for (auto item:set) {
+      std::cout << item << " ";
+    }
+    if (set.empty()) {
+      std::cout << "TRASH";
+    }
+    std::cout << "\n";
   }
 
   DkaNode* GetNode(std::set<size_t>& set) {
@@ -306,7 +315,7 @@ class DKA {
 
     queue.push(first_set);
     while (!queue.empty()) {
-      auto curr_set = queue.back();  // вытащили подмножество
+      auto curr_set = queue.front();  // вытащили подмножество
       queue.pop();
       std::set<size_t> closure = EpsClosure(nfa, curr_set);
 
