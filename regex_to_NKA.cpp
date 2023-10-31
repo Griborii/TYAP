@@ -183,7 +183,7 @@ class NKA {
     return all_[num];
   }
   void Print() {
-    std::cout << "start: " << start_->num << " " << "finish: ";
+    std::cout << "start_: " << start_->num << " " << "finish: ";
     for (auto fin : finish_) {
       std::cout << fin->num << " ";
     }
@@ -236,18 +236,23 @@ template <typename DkaNode>
 class DKA {
  public:
   DKA(NKA& nka, size_t size)
-      : dict_size(size),
-        start(nullptr),
-        states(std::vector<DkaNode*>()),
-        nka_map(std::map<std::set<size_t>, size_t>()) {
+      : dict_size_(size),
+        start_(nullptr),
+        states_(std::vector<DkaNode*>()),
+        nka_map_(std::map<std::set<size_t>, size_t>()) {
     BuildDFA(nka);
   }
 
   void Print() {
-    for (size_t i = 0; i < states.size(); ++i) {
-      auto now = states[i];
+    std::cout << "start_: " << start_->num << " " << "finish: ";
+    for (auto fin : finish_) {
+      std::cout << fin->num << " ";
+    }
+    std::cout << std::endl;
+    for (size_t i = 0; i < states_.size(); ++i) {
+      auto now = states_[i];
       std::cout << "\n-----------------------------" << i << "\n";
-      for (size_t j = 0; j < dict_size; ++j) {
+      for (size_t j = 0; j < dict_size_; ++j) {
         if (now->trans[j] != nullptr) {
           std::cout << "(" << j << "->" << now->trans[j]->num << ") ";
         }
@@ -274,13 +279,28 @@ class DKA {
     return closure;
   }
 
-  void CreateNode(std::set<size_t>& set) {
-    auto new_node = new DkaNode(dict_size);
-    nka_map[set] = states.size();
-    new_node->num = states.size();
-    states.push_back(new_node);
+  int PutFinal(NKA& nfa, std::set<size_t>& set) {
+    int finish = -1;
+    std::set<size_t> closure = EpsClosure(nfa, set);
+    for (auto num:closure) {
+      auto curr_node = nfa.GetNode(num);
+      if (curr_node->IsFinish()) {
+        finish = curr_node->finish;
+        finish_.push_back(states_[states_.size() - 1]);
+      }
+    }
+    return finish;
+  }
+
+  void CreateNode(NKA& nfa, std::set<size_t>& set) {
+    auto new_node = new DkaNode(dict_size_);
+    nka_map_[set] = states_.size();
+    new_node->num = states_.size();
+    states_.push_back(new_node);
+    new_node->MakeFinish(PutFinal(nfa, set));
     std::cout << "----------" << new_node->num << "-------------\n";
-    for (auto item:set) {
+    std::set<size_t> closure = EpsClosure(nfa, set);
+    for (auto item:closure) {
       std::cout << item << " ";
     }
     if (set.empty()) {
@@ -290,8 +310,8 @@ class DKA {
   }
 
   DkaNode* GetNode(std::set<size_t>& set) {
-    auto node_ind = nka_map[set];
-    return states[node_ind];
+    auto node_ind = nka_map_[set];
+    return states_[node_ind];
   }
 
   void CreateTrans(std::set<size_t>& from, std::set<size_t>& to, size_t let) {
@@ -301,7 +321,7 @@ class DKA {
   }
 
   bool SetNotProcessed(std::set<size_t>& set) {
-    return nka_map.find(set) == nka_map.end();
+    return nka_map_.find(set) == nka_map_.end();
   }
 
   void BuildDFA(NKA& nfa) {
@@ -310,8 +330,8 @@ class DKA {
     first_set.insert(nfa.Start()->num);  // создали состояние начальной вершины
 
 
-    CreateNode(first_set);  // добавил в дка старт вершину
-    start = states[0];
+    CreateNode(nfa, first_set);  // добавил в дка старт вершину
+    start_ = states_[0];
 
     queue.push(first_set);
     while (!queue.empty()) {
@@ -319,7 +339,7 @@ class DKA {
       queue.pop();
       std::set<size_t> closure = EpsClosure(nfa, curr_set);
 
-      for (size_t letter = 0; letter < dict_size; ++letter) {
+      for (size_t letter = 0; letter < dict_size_; ++letter) {
         std::set<size_t> next_set;
         for (auto ind : closure) {  // находим следующее подмножество по букве
           auto curr_node = nfa.GetNode(ind);
@@ -329,7 +349,7 @@ class DKA {
           }
         }
         if (SetNotProcessed(next_set)) {  // создаем новую вершину в дка
-          CreateNode(next_set);
+          CreateNode(nfa, next_set);
           queue.push(next_set);
         }
         CreateTrans(curr_set, next_set, letter);
@@ -337,10 +357,11 @@ class DKA {
     }
   }
 
-  size_t dict_size; // размер алфавита
-  DkaNode* start;
-  std::vector<DkaNode*> states;  // dka states
-  std::map<std::set<size_t>, size_t> nka_map;  // мапа из множеств подмножеств нка в новое состояние дка
+  size_t dict_size_; // размер алфавита
+  DkaNode* start_;
+  std::vector<DkaNode*> finish_;
+  std::vector<DkaNode*> states_;  // dka states_
+  std::map<std::set<size_t>, size_t> nka_map_;  // мапа из множеств подмножеств нка в новое состояние дка
 };
 
 int main() {
@@ -353,9 +374,12 @@ int main() {
   std::map<char, int> dict;
   Count(dict, v_str);
   NKA nka(dict, v_str);
+  std::cout << "\n--------------NKA---------------\n";
   nka.Print();
 
   std::cout << "\n";
+  std::cout << "\n";
+  std::cout << "\n--------------DKA---------------\n";
   DKA<Node> dka(nka, dict.size());
   dka.Print();
 }
