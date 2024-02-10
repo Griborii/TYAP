@@ -1,0 +1,19 @@
+fun main() {
+    e = [1, 2, false]
+    w = "adiauid"
+    e[0] = w
+    print(e[0])
+    print(e)
+    e = "works"
+    print(e)
+    i = 1
+    sum = 0
+    while(i < 10) {
+        sum = sum + i * i
+        print(sum)
+        i = i + 1
+    }
+    if (true) {
+        print("works")
+    }
+}

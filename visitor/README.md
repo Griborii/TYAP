@@ -1,0 +1,1 @@
+Запустите python3 Driver.py input.lang в терминале, код из input.lang отработает, дерево запишет в tree.out

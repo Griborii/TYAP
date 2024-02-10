@@ -1,0 +1,82 @@
+Prorgam
+
+Assign
+    IdentExpression(e)
+    ListExpression
+        NumberExpression(1)
+        NumberExpression(2)
+        BooleanExpression(False)
+
+--------
+
+Assign
+    IdentExpression(w)
+    StringExpression(adiauid)
+
+--------
+
+Assign
+    IdentExpression(<nodes.expressions.AccessByIndexExpression.AccessByIndexExpression object at 0x7fc4b9d5f0d0>)
+    IdentExpression(w)
+
+--------
+
+PrintExpression
+    AccessByIndexExpression
+        Ident(e)
+        NumberExpression(0)
+
+--------
+
+PrintExpression
+    IdentExpression(e)
+
+--------
+
+Assign
+    IdentExpression(e)
+    StringExpression(works)
+
+--------
+
+PrintExpression
+    IdentExpression(e)
+
+--------
+
+Assign
+    IdentExpression(i)
+    NumberExpression(1)
+
+--------
+
+Assign
+    IdentExpression(sum)
+    NumberExpression(0)
+
+--------
+
+WhileStatement
+    Assign
+        IdentExpression(sum)
+        AddExpression
+            IdentExpression(sum)
+            MulExpression
+                IdentExpression(i)
+                IdentExpression(i)
+    PrintExpression
+        IdentExpression(sum)
+    Assign
+        IdentExpression(i)
+        AddExpression
+            IdentExpression(i)
+            NumberExpression(1)
+
+--------
+
+IfStatement
+    PrintExpression
+        StringExpression(works)
+
+--------
+
